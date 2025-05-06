@@ -1,0 +1,77 @@
+{% extends "app/base.html" %}
+{% load static %}
+
+{% block about-content %}
+<section class="about-header">
+    <div class="container">
+        <div class="about-header-content">
+            <h1>Giới Thiệu Về Smart Parking</h1>
+            <p>Giải pháp quản lý bãi đỗ xe thông minh, mang lại sự tiện lợi và an toàn cho mọi người dùng.</p>
+        </div>
+    </div>
+</section>
+
+<section class="about-main">
+    <div class="container">
+        <div class="about-main-content">
+            <h2 class="section-title">Chúng Tôi Là Ai?</h2>
+            <p>Smart Parking là hệ thống quản lý bãi đỗ xe tiên tiến, được thiết kế để tối ưu hóa trải nghiệm đỗ xe trong môi trường đô thị. Với công nghệ hiện đại, chúng tôi cung cấp các giải pháp thông minh giúp người dùng dễ dàng tìm kiếm chỗ đỗ, thanh toán trực tuyến, và theo dõi lịch sử đỗ xe một cách an toàn và hiệu quả.</p>
+            <p><strong>Sứ mệnh:</strong> Mang đến sự tiện lợi và tiết kiệm thời gian cho người dùng thông qua các giải pháp đỗ xe thông minh, góp phần giảm ùn tắc và cải thiện không gian đô thị.</p>
+            <p><strong>Tầm nhìn:</strong> Trở thành nền tảng quản lý bãi đỗ xe hàng đầu, tích hợp công nghệ AI và IoT để tối ưu hóa mọi khía cạnh của việc đỗ xe.</p>
+        </div>
+    </div>
+</section>
+
+<section class="about-values">
+    <div class="container">
+        <h2 class="section-title">Giá Trị Cốt Lõi</h2>
+        <div class="values-grid">
+            <div class="value-card">
+                <div class="value-icon">
+                    <i class="fas fa-rocket"></i>
+                </div>
+                <h3>Tiện Lợi</h3>
+                <p>Tìm chỗ đỗ xe nhanh chóng chỉ với vài thao tác trên ứng dụng.</p>
+            </div>
+            <div class="value-card">
+                <div class="value-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h3>An Toàn</h3>
+                <p>Hệ thống giám sát 24/7 đảm bảo an ninh cho xe của bạn.</p>
+            </div>
+            <div class="value-card">
+                <div class="value-icon">
+                    <i class="fas fa-microchip"></i>
+                </div>
+                <h3>Công Nghệ Tiên Tiến</h3>
+                <p>Sử dụng AI và IoT để cung cấp trải nghiệm đỗ xe thông minh.</p>
+            </div>
+            <div class="value-card">
+                <div class="value-icon">
+                    <i class="fas fa-leaf"></i>
+                </div>
+                <h3>Thân Thiện Môi Trường</h3>
+                <p>Giảm khí thải và ùn tắc giao thông nhờ tối ưu hóa không gian đỗ xe.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="about-cta">
+    <div class="container">
+        <h2>Tham Gia Smart Parking Ngay Hôm Nay</h2>
+        <p>Trải nghiệm giải pháp đỗ xe thông minh, tiện lợi và an toàn. Đăng ký hoặc khám phá thêm về hệ thống của chúng tôi!</p>
+        <div class="cta-buttons" style="margin: 20px 0;">
+            {% if not user %}
+                <a href="{% url 'register' %}" class="btn btn-primary">Đăng Ký Ngay</a>
+            {% else %}
+                <a href="" class="btn btn-primary">
+                    <i class="fas fa-search-location"></i> Tìm Chỗ Đỗ
+                </a>
+            {% endif %}
+            <a href="{% url 'index' %}#features" class="btn btn-secondary">Khám Phá Tính Năng</a>
+        </div>
+    </div>
+</section>
+{% endblock about-content %}

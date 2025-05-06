@@ -1,0 +1,94 @@
+{% extends "app/base.html" %}
+{% load static %}
+
+{% block register-content %}
+<section class="auth-section">
+    <div class="container">
+        <div class="auth-container">
+            {% comment %} {% for vehicle  in vehicles %}
+            <div class="auth-image">
+                <img src="{{ MEDIA_URL }}{{ vehicle.image_path }}" alt="Đăng ký">
+            </div>
+            {% endfor %} {% endcomment %}
+
+            <div class="auth-image">
+                <img src="{{ MEDIA_URL }}{{ vehicle.image_path }}" alt="Đăng ký">
+            </div>
+            
+            <div class="auth-form">
+                <h2>Đăng Ký Tài Khoản</h2>
+                <p class="auth-description">Tạo tài khoản để sử dụng dịch vụ đỗ xe thông minh</p>
+                
+                <form id="registerForm" method="post"  action="{% url 'register' %}">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="fullName">Họ và Tên</label>
+                        <div class="input-icon">
+                            <i class="fas fa-user"></i>
+                            <input type="text" id="fullName" name="name" placeholder="Nhập họ và tên của bạn" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="regEmail">Email</label>
+                        <div class="input-icon">
+                            <i class="fas fa-envelope"></i>
+                            <input type="email" id="regEmail" name = "email" placeholder="Nhập email của bạn" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="phone">Số Điện Thoại</label>
+                        <div class="input-icon">
+                            <i class="fas fa-phone"></i>
+                            <input type="tel" id="phone" name = "phone" placeholder="Nhập số điện thoại của bạn" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="regPassword">Mật Khẩu</label>
+                        <div class="input-icon">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="regPassword" name="password" placeholder="Tạo mật khẩu" required>
+                            <i class="fas fa-eye toggle-password"></i>
+                        </div>
+                    </div>
+                    
+
+                    {% comment %} <div class="form-options">
+                        <div class="terms-conditions">
+                            <input type="checkbox" id="termsAgree" required>
+                            <label for="termsAgree">Tôi đồng ý với <a href="#">Điều khoản dịch vụ</a> và <a href="#">Chính sách bảo mật</a></label>
+                        </div>
+                    </div> {% endcomment %}
+
+                    <button type="button" id="registerButton" class="btn btn-primary btn-large">Đăng Ký</button>
+                </form>
+                
+                {% comment %} <div class="social-login">
+                    <p>Hoặc đăng ký với</p>
+                    <div class="social-buttons">
+                        <button class="btn btn-social btn-google">
+                            <i class="fab fa-google"></i> Google
+                        </button>
+                        <button class="btn btn-social btn-facebook">
+                            <i class="fab fa-facebook-f"></i> Facebook
+                        </button>
+                    </div>
+                </div> {% endcomment %}
+                
+                <div class="auth-redirect">
+                    <p>Đã có tài khoản? <a href="{% url "login" %}">Đăng nhập</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    const loginUrl = "{% url 'login' %}";
+</script>
+
+<script src="{% static 'js/register.js' %}"></script>
+
+{% endblock %}

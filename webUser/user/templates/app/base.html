@@ -1,0 +1,267 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Parking - Hệ Thống Quản Lý Bãi Đỗ Xe Thông Minh</title>
+
+    <link href="{% static '/css/styles.css' %}" rel="stylesheet">
+    <link rel="stylesheet" href="{% static '/css/registerVehicle.css' %}">
+
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+
+    <script type = "text/javascript">
+        {% comment %} var user = '{{ request.user }}'; {% endcomment %}
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        const csrftoken = getCookie('csrftoken');
+    </script>
+    <style>
+        /* Reset mặc định và kiểu chung */
+.user-menu, .btn {
+    font-family: Arial, sans-serif;
+    position: relative;
+}
+
+/* Kiểu cho user-menu */
+.user-menu {
+    display: inline-block;
+    cursor: pointer;
+}
+
+.user-icon {
+    display: flex;
+    align-items: center;
+    padding: 10px 15px;
+    background-color: #f1f1f1;
+    border-radius: 20px;
+    font-size: 16px;
+    color: #333;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.user-icon i {
+    margin-right: 8px;
+}
+
+/* Hiệu ứng hover cho user-icon */
+.user-menu:hover .user-icon {
+    background-color: #3498db;
+    color: #fff;
+}
+
+/* Dropdown menu */
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background-color: #fff;
+    min-width: 180px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+    z-index: 1000;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+/* Hiển thị dropdown khi hover */
+.user-menu:hover .dropdown-menu {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Kiểu cho các mục trong dropdown */
+.dropdown-item {
+    display: block;
+    padding: 12px 20px;
+    color: #333;
+    text-decoration: none;
+    font-size: 14px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.dropdown-item:hover {
+    background-color: #3498db;
+    color: #fff;
+}
+
+/* Kiểu cho nút Đăng Nhập và Đăng Ký */
+.btn-login, .btn-register {
+    display: inline-block;
+    padding: 10px 20px;
+    margin-left: 10px;
+    text-decoration: none;
+    font-size: 16px;
+    border-radius: 20px;
+    transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s ease;
+}
+
+/* Kiểu riêng cho nút Đăng Nhập */
+.btn-login {
+    background-color: #3498db;
+    color: #fff;
+}
+
+.btn-login:hover {
+    background-color: #2980b9;
+    transform: translateY(-2px);
+}
+
+/* Kiểu riêng cho nút Đăng Ký */
+.btn-register {
+    background-color: #2ecc71;
+    color: #fff;
+}
+
+.btn-register:hover {
+    background-color: #27ae60;
+    transform: translateY(-2px);
+}
+
+/* Responsive cho thiết bị di động */
+@media (max-width: 768px) {
+    .btn-login, .btn-register {
+        padding: 8px 15px;
+        font-size: 14px;
+        margin-left: 5px;
+    }
+
+    .user-icon {
+        font-size: 14px;
+        padding: 8px 12px;
+    }
+
+    .dropdown-menu {
+        min-width: 150px;
+    }
+}
+    </style>
+    {% block payment-css %}{% endblock payment-css %}
+    {% block account-css %} {% endblock account-css %}
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">
+                <a href="{% url "index" %}"><h1><i class="fas fa-parking"></i> Smart Parking</h1></a>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="{% url "index" %}" class="active">Trang Chủ</a></li>
+                    <li><a href="{% url "history" %}">Lịch Sử Xe</a></li>
+                    <li><a href="{% url "payment" %}">Đóng Phí</a></li>
+                    <li><a href="{% url "about" %}">Giới Thiệu</a></li>
+                </ul>
+            </nav>
+            {% comment %} <div class="auth-buttons">
+                <a href="{% url "login" %}" class="btn btn-login">Đăng Nhập</a>
+                <a href="{% url "register" %}" class="btn btn-register">Đăng Ký</a>
+            </div> {% endcomment %}
+            <div class="auth-buttons">
+                {% if user %}
+                    <div class="user-menu">
+                        <span class="user-icon"><i class="fas fa-user"></i> {{ user.name }}</span>
+                        <div class="dropdown-menu">
+                            <a href="{% url "account" %}" class="dropdown-item">Tài khoản</a>
+                            <a href="{% url "registerVehicle" %}" class="dropdown-item">Đăng Ký Biển Số Xe</a>
+                            <a href="{% url 'logout' %}" class="dropdown-item">Đăng Xuất</a>
+                        </div>
+                    </div>
+                {% else %}
+                    <a href="{% url 'login' %}" class="btn btn-login">Đăng Nhập</a>
+                    <a href="{% url 'register' %}" class="btn btn-register">Đăng Ký</a>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+
+    {% block index-content %}
+    {% endblock index-content %}
+
+    {% block login-content %}
+    {% endblock login-content %}
+
+    {% block history-content %}
+    {% endblock history-content %}
+
+    
+    {% block payment-content %}
+    {% endblock payment-content %}
+
+    {% block register-content %}
+    {% endblock register-content %}
+    
+    {% block about-content %}
+    {% endblock about-content %}
+    
+    {% block registerVehicle-content %}
+    {% endblock registerVehicle-content %}
+
+    {% block account-content %}{% endblock account-content %}
+
+    
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <h2><i class="fas fa-parking"></i> Smart Parking</h2>
+                    <p>Giải pháp đỗ xe thông minh cho cuộc sống hiện đại</p>
+                </div>
+                <div class="footer-links">
+                    <h3>Liên Kết Nhanh</h3>
+                    <ul>
+                        <li><a href="{% url "index" %}">Trang Chủ</a></li>
+                        <li><a href="{% url "history" %}">Lịch Sử Xe</a></li>
+                        <li><a href="{% url "payment" %}">Đóng Phí</a></li>
+                        <li><a href="{% url "about" %}">Giới Thiệu</a></li>
+                    </ul>
+                </div>
+                <div class="footer-contact">
+                    <h3>Liên Hệ</h3>
+                    <p><i class="fas fa-map-marker-alt"></i> 54 Nguyễn Lương Bằng, Quận Liên Chiểu, TP. Đà Nẵng</p>
+                    <p><i class="fas fa-phone"></i> (028) 1234 5678</p>
+                    <p><i class="fas fa-envelope"></i> info@smartparking.com</p>
+                </div>
+                <div class="footer-social">
+                    <h3>Kết Nối</h3>
+                    <div class="social-icons">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Smart Parking. Tất cả quyền được bảo lưu.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- <script src="script.js"></script> -->
+    <script src="{% static '/js/script.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</body>
+</html>

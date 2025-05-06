@@ -1,0 +1,98 @@
+{% extends "app/base.html" %}
+{% load static %}
+
+{% block registerVehicle-content %}
+<section class="vehicle-form-section">
+    <div class="container">
+        <h2 class="section-title">Thông Tin Xe Của Bạn</h2>
+        <p class="section-description">Vui lòng nhập thông tin xe để sử dụng dịch vụ Smart Parking.</p>
+        <form class="vehicle-form" method="POST" >
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="licensePlate">Biển Số Xe</label>
+                <div class="input-icon">
+                    <i class="fas fa-car"></i>
+                    <input type="text" id="licensePlate" name="license_plate" placeholder="Nhập biển số xe của bạn" required>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="vehicleType">Loại Xe</label>
+                <div class="input-icon">
+                    <i class="fas fa-car-side"></i>
+                    <input type="text" id="vehicleType" name="vehicle_type" placeholder="Nhập loại xe (VD: motorbike, car)" required>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="vehicleImage">Ảnh Xe</label>
+                <div class="input-icon file-upload-wrapper">
+                    <i class="fas fa-image"></i>
+                    <input type="file" id="vehicleImage" name="vehicle_image" accept="image/*" required>
+                    <span class="file-upload-text">Ảnh xe</span>
+                </div>
+                <span class="error-message">Vui lòng tải lên ảnh xe.</span>
+            </div>
+            
+            <button type="submit" class="btn btn-primary btn-large">
+                <i class="fas fa-check-circle"></i> Xác Nhận
+            </button>
+        </form>
+    </div>
+</section>
+
+<script>
+    document.getElementById('vehicleImage').addEventListener('change', function(e) {
+        const fileName = e.target.files[0]?.name || 'Chọn ảnh xe của bạn';
+        const fileText = document.querySelector('.file-upload-text');
+        fileText.textContent = fileName;
+        fileText.classList.add('file-selected');
+    });
+
+    
+</script>
+
+
+<script>
+document.querySelector('.vehicle-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const form = e.target;
+    const formData = new FormData(form);
+
+    fetch("{% url 'registerVehicle' %}", {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrftoken,
+        },
+        body: formData
+    })
+    .then(response => response.json().then(data => ({status: response.status, body: data})))
+    .then(({status, body}) => {
+        if (status === 200) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Thành công',
+                text: body.message,
+            }).then(() => {
+                window.location.reload("/"); // hoặc chuyển hướng nếu muốn
+            });
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Lỗi',
+                text: body.error || 'Đăng ký thất bại',
+            });
+        }
+    })
+    .catch(error => {
+        Swal.fire({
+            icon: 'error',
+            title: 'Lỗi kết nối',
+            text: 'Không thể gửi yêu cầu. Vui lòng thử lại sau.',
+        });
+    });
+});
+</script>
+
+{% endblock registerVehicle-content %}

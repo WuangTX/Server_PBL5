@@ -1,0 +1,289 @@
+{% extends "app/base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block payment-css %}
+    <link rel="stylesheet" href="{% static 'css/payment.css' %}">
+{% endblock payment-css %}
+{% block  payment-content %}
+<section class="page-header">
+    <div class="container">
+        <h1>Đóng Phí Đỗ Xe</h1>
+        <p>Thanh toán phí đỗ xe nhanh chóng và an toàn</p>
+    </div>
+</section>
+
+<section class="payment-section">
+    <div class="container">
+        <div class="payment-container">
+            <div class="payment-info">
+                <h2>Thông Tin Thanh Toán</h2>
+                {% comment %} <div class="search-vehicle">
+                    <h3>Tìm Kiếm Xe</h3>
+                    <div class="search-box">
+                        <input type="text" id="vehicleSearch" placeholder="Nhập biển số xe...">
+                        <button id="searchVehicleBtn" class="btn btn-primary"><i class="fas fa-search"></i> Tìm Kiếm</button>
+                    </div>
+                </div> {% endcomment %}
+                <div class="search-vehicle">
+                    <h3>Chọn Xe Chưa Thanh Toán</h3>
+                    <div class="search-box">
+                        <select id="vehicleSelect" >
+                            <option value="">-- Chọn biển số xe --</option>
+                            {% for history in unpaid_histories %}
+                                <option value="{{ history.id }}">{{ history.vehicle.license_plate }}</option>
+                            {% endfor %}
+                        </select>
+                        <button id="searchVehicleBtn" class="btn btn-primary" onclick="loadVehicleDetails()"><i class="fas fa-search"></i> Xem Chi Tiết</button>
+                    </div>
+                </div>
+
+                <div class="vehicle-details" id="vehicleDetails">
+                    <h3>Thông Tin Xe</h3>
+                    <div class="detail-item">
+                        <span class="label">Biển Số Xe:</span>
+                        <span class="value" id="plateNumber"></span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">Thời Gian Vào:</span>
+                        <span class="value" id="entryTime"></span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">Thời Gian Ra:</span>
+                        <span class="value" id="exitTime"></span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">Thời Gian Đỗ:</span>
+                        <span class="value" id="parkingDuration"></span>
+                    </div>
+                    <div class="detail-item total-fee">
+                        <span class="label">Tổng Phí:</span>
+                        <span class="value" id="totalFee"> VNĐ</span>
+                    </div>
+                </div>
+                
+            </div>
+
+            <div class="payment-methods">
+                <h2>Phương Thức Thanh Toán</h2>
+                <div class="payment-options">
+                    {% comment %} <div class="payment-option">
+                        <input type="radio" id="creditCard" name="paymentMethod" checked>
+                        <label for="creditCard">
+                            <i class="far fa-credit-card"></i> Thẻ Tín Dụng/Ghi Nợ
+                        </label>
+                        <div class="payment-details active" id="creditCardDetails">
+                            <div class="form-group">
+                                <label for="cardNumber">Số Thẻ</label>
+                                <input type="text" id="cardNumber" placeholder="1234 5678 9012 3456">
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="expiryDate">Ngày Hết Hạn</label>
+                                    <input type="text" id="expiryDate" placeholder="MM/YY">
+                                </div>
+                                <div class="form-group">
+                                    <label for="cvv">CVV</label>
+                                    <input type="text" id="cvv" placeholder="123">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="cardName">Tên Chủ Thẻ</label>
+                                <input type="text" id="cardName" placeholder="NGUYEN VAN A">
+                            </div>
+                        </div>
+                    </div> {% endcomment %}
+
+                    {% comment %} <div class="payment-option">
+                        <input type="radio" id="momo" name="paymentMethod">
+                        <label for="momo">
+                            <i class="fas fa-wallet"></i> Ví MoMo
+                        </label>
+                        <div class="payment-details" id="momoDetails">
+                            <div class="qr-code">
+                                <img src="/placeholder.svg?height=200&width=200" alt="Mã QR MoMo">
+                            </div>
+                            <p class="qr-instruction">Quét mã QR bằng ứng dụng MoMo để thanh toán</p>
+                        </div>
+                    </div> {% endcomment %}
+
+                    {% comment %} <div class="payment-option">
+                        <input type="radio" id="banking" name="paymentMethod">
+                        <label for="banking">
+                            <i class="fas fa-university"></i> Chuyển Khoản Ngân Hàng
+                        </label>
+                        <div class="payment-details" id="bankingDetails">
+                            <div class="bank-info">
+                                <p><strong>Tên Tài Khoản:</strong> CÔNG TY SMART PARKING</p>
+                                <p><strong>Số Tài Khoản:</strong> 1234567890</p>
+                                <p><strong>Ngân Hàng:</strong> Vietcombank - Chi nhánh TP.HCM</p>
+                                <p><strong>Nội Dung:</strong> 51F-246.80 THANH TOAN PHI DO XE</p>
+                            </div>
+                        </div>
+                    </div> {% endcomment %}
+                    <div class="payment-option">
+                        <input type="radio" id="Account Balance" name="paymentMethod" checked>
+                        <label for="accountBalance">
+                            <i class="fas fa-wallet"></i> Thanh Toán Bằng Số Dư Tài Khoản
+                        </label>
+                        <div class="payment-details active" id="accountBalanceDetails">
+                            <p>Số dư hiện tại: <strong>{{user.balance|floatformat:0|intcomma}} VNĐ</strong></p>
+                            {% comment %} <p>Phí cần thanh toán: <strong>77.500 VNĐ</strong></p>
+                            <p>Số dư sau thanh toán: <strong>422.500 VNĐ</strong></p> {% endcomment %}
+                        </div>
+                    </div>
+                </div>
+
+                <button id="payNowBtn" class="btn btn-primary btn-large">Thanh Toán Ngay</button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Loading Overlay -->
+<div id="loading-overlay" class="overlay">
+    <div class="spinner"></div>
+    <p>Đang xử lý yêu cầu của bạn...</p>
+</div>
+
+<script>
+    function loadVehicleDetails() {
+        const historyId = document.getElementById('vehicleSelect').value;
+    
+        if (!historyId) {
+            showErrorMessage("Vui lòng chọn xe.");
+            return;
+        }
+    
+        fetch(`/payment/vehicle-details?history_id=${historyId}`)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('plateNumber').textContent = data.plateNumber;
+                document.getElementById('entryTime').textContent = data.entryTime;
+                document.getElementById('exitTime').textContent = data.exitTime;
+                document.getElementById('parkingDuration').textContent = data.parkingDuration;
+                const fee = data.totalFee;
+                const formattedFee = new Intl.NumberFormat('vi-VN', { style: 'decimal', minimumFractionDigits: 0 }).format(fee).replace(/\./g, ',');
+                document.getElementById('totalFee').textContent = formattedFee + ' VNĐ';
+            })
+            .catch(error => {
+                console.error('Error loading vehicle details:', error);
+            });
+    }
+    
+
+    function showErrorMessage(message) {
+        const successAlert = document.createElement('div');
+        successAlert.className = 'success-message slide-in';
+        successAlert.style.backgroundColor = 'var(--danger-color)';
+        successAlert.style.color = 'white';
+        successAlert.style.padding = '10px 15px';
+        successAlert.style.borderRadius = '4px';
+        successAlert.style.position = 'fixed';
+        successAlert.style.top = '180px';
+        successAlert.style.right = '-300px'; // Bắt đầu ngoài màn hình
+        successAlert.style.zIndex = '1000';
+        successAlert.style.boxShadow = '0 2px 10px rgba(0, 0, 0, 0.1)';
+        successAlert.textContent = message;
+    
+        document.body.appendChild(successAlert);
+    
+        // Thêm hiệu ứng trượt vào
+        setTimeout(() => {
+            successAlert.style.right = '20px'; // Trượt vào màn hình
+        }, 100);
+    
+        setTimeout(() => {
+            successAlert.style.opacity = '0';
+            successAlert.style.transition = 'opacity 0.5s, right 0.5s';
+            successAlert.style.right = '-300px'; // Trượt ra ngoài màn hình
+    
+            setTimeout(() => {
+                successAlert.remove();
+            }, 500);
+        }, 3000);
+    }
+    </script>
+
+<script>
+    // Loading overlay handling
+    function showLoading() {
+        document.getElementById('loading-overlay').style.display = 'flex';
+    }
+
+    function hideLoading() {
+        document.getElementById('loading-overlay').style.display = 'none';
+    }
+
+    // Payment button
+    const payNowBtn = document.getElementById('payNowBtn');
+    if (payNowBtn) {
+        payNowBtn.addEventListener('click', function () {
+            // Kiểm tra nếu đã chọn biển số xe
+            const selectedVehicle = document.getElementById('vehicleSelect').value;
+            if (!selectedVehicle) {
+                showErrorMessage('Vui lòng chọn biển số xe!');
+                return;
+            }
+
+            // Get selected payment method
+            const selectedMethod = document.querySelector('.payment-option input[type="radio"]:checked');
+            if (!selectedMethod) {
+                showErrorMessage('Vui lòng chọn phương thức thanh toán!');
+                return;
+            }
+
+            showLoading();
+
+            // Gửi yêu cầu AJAX đến server
+            setTimeout(() => {
+                fetch('/payment/process_parking_payment/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrftoken , // Lấy CSRF token
+                    },
+                    body: JSON.stringify({
+                        history_id: selectedVehicle,
+                        payment_method: selectedMethod.id,
+                    }),
+                })
+                    .then((response) => response.json())
+                    .then((data) => {
+                        hideLoading();
+
+                        if (data.error) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Lỗi',
+                                text: data.error,
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Thành công',
+                                text: data.message,
+                                footer: `Số dư mới: ${new Intl.NumberFormat('vi-VN', {
+                                    style: 'currency',
+                                    currency: 'VND',
+                                }).format(data.new_balance)}`,
+                            }).then(() => {
+                                location.reload(); // Load lại trang sau khi hiển thị thông báo
+                            });
+                        }
+                    })
+                    .catch((error) => {
+                        hideLoading();
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Lỗi',
+                            text: 'Đã xảy ra lỗi trong quá trình xử lý thanh toán.',
+                        });
+                        console.error('Error:', error);
+                    });
+            }, 2000);
+        });
+    }
+</script>
+    
+{% endblock  %}1

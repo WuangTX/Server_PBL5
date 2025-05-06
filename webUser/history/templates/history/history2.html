@@ -1,0 +1,320 @@
+{% extends "app/base.html" %}
+{% load humanize %}
+
+{% block history-content %}
+<section class="page-header">
+    <div class="container">
+        <h1>Lịch Sử Xe Vào/Ra</h1>
+        <p>Theo dõi lịch sử ra vào của xe và thời gian đỗ xe</p>
+    </div>
+</section>
+
+<section class="history-section">
+    <div class="container">
+        <div class="filter-controls">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Tìm kiếm theo biển số xe...">
+                <button type="button"><i class="fas fa-search"></i></button>
+            </div>
+            <div class="filter-options">
+                {% comment %} <select id="timeFilter">
+                    <option value="all">Tất cả thời gian</option>
+                    <option value="today">Hôm nay</option>
+                    <option value="week">Tuần này</option>
+                    <option value="month">Tháng này</option>
+                </select> {% endcomment %}
+                <select id="statusFilter">
+                    <option value="all">Tất cả trạng thái</option>
+                    <option value="parking">Đang đỗ</option>
+                    <option value="unpaid">Chưa thanh toán</option>
+                    <option value="paid">Đã thanh toán</option>
+                </select>
+                <button id="filterButton" class="btn btn-primary">Lọc</button>
+                <button id="" class="btn btn-primary">Thanh toán tất cả</button>
+            </div>
+        </div>
+
+        <div class="history-table-container">
+            <table class="history-table">
+                <thead>
+                    <tr>
+                        <th>STT</th>
+                        <th>Biển Số Xe</th>
+                        <th>Thời Gian Vào</th>
+                        <th>Thời Gian Ra</th>
+                        <th>Thời Gian Đỗ</th>
+                        <th>Phí</th>
+                        <th>Trạng Thái</th>
+                    </tr>
+                </thead>
+                <tbody id="historyTableBody">
+                    {% for history in page_obj.object_list %}
+                    <tr>
+                        <td>{{ forloop.counter0|add:page_obj.start_index }}</td>
+                        <td>{{ history.license_plate }}</td>
+                        <td>{{ history.time_in|date:"d/m/Y H:i" }}</td>
+                        <td>
+                            {% if history.time_out %}
+                                {{ history.time_out|date:"d/m/Y H:i" }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                        <td>{{ history.duration }}</td>
+                        <td>
+                            {% if history.fee == "Chưa tính" %}
+                                Chưa tính
+                            {% else %}
+                                {{ history.fee|floatformat:0|intcomma }} VNĐ
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if history.status == "Đang đỗ" %}
+                                <span class="status-parking">Đang đỗ</span>
+                            {% elif history.status == "Đã thanh toán" %}
+                                <span class="status-paid">Đã thanh toán</span>
+                            {% else %}
+                                <span class="status-unpaid">Chưa thanh toán</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        
+        <div class="pagination">
+            {% if page_obj.has_previous %}
+                <a class="pagination-btn" href="?page={{ page_obj.previous_page_number }}"><i class="fas fa-chevron-left"></i></a>
+            {% else %}
+                <button class="pagination-btn" disabled><i class="fas fa-chevron-left"></i></button>
+            {% endif %}
+        
+            {% for page_num in page_obj.paginator.page_range %}
+                {% if page_num == page_obj.number %}
+                    <button class="pagination-btn active">{{ page_num }}</button>
+                {% else %}
+                    <a class="pagination-btn" href="?page={{ page_num }}">{{ page_num }}</a>
+                {% endif %}
+            {% endfor %}
+        
+            {% if page_obj.has_next %}
+                <a class="pagination-btn" href="?page={{ page_obj.next_page_number }}"><i class="fas fa-chevron-right"></i></a>
+            {% else %}
+                <button class="pagination-btn" disabled><i class="fas fa-chevron-right"></i></button>
+            {% endif %}
+        </div>
+        
+    </div>
+</section>
+
+            {% comment %} <script>
+                // Biến lưu trạng thái hiện tại (search hay không)
+                let isSearching = false;
+                let currentQuery = '';
+                
+                document.getElementById('searchInput').addEventListener('input', function() {
+                    currentQuery = this.value.trim();
+                    isSearching = currentQuery !== '';
+                    
+                    if (isSearching) {
+                        fetchHistoryData(currentQuery, 1);
+                    } else {
+                        // Nếu xóa hết search, tải lại trang gốc
+                        window.location.href = window.location.pathname;
+                    }
+                });
+                
+                // Hàm xử lý phân trang khi đang search
+                function handlePaginationClick(e) {
+                    e.preventDefault();
+                    if (!isSearching) return true; // Cho phép chuyển trang bình thường
+                    
+                    const page = this.getAttribute('data-page');
+                    fetchHistoryData(currentQuery, page);
+                }
+                
+                // Gán sự kiện cho các nút phân trang
+                document.addEventListener('DOMContentLoaded', function() {
+                    document.querySelectorAll('.pagination-btn[data-page]').forEach(btn => {
+                        btn.addEventListener('click', handlePaginationClick);
+                    });
+                });
+                
+                function fetchHistoryData(query, page) {
+                    fetch(`/history/search/?query=${encodeURIComponent(query)}&page=${page}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            updateTable(data.histories);
+                            updatePagination(data);
+                        });
+                }
+                
+                function updateTable(histories) {
+                    const tableBody = document.getElementById('historyTableBody');
+                    tableBody.innerHTML = '';
+                
+                    histories.forEach((history, index) => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${index + 1}</td>
+                            <td>${history.license_plate}</td>
+                            <td>${history.time_in}</td>
+                            <td>${history.time_out}</td>
+                            <td>${history.duration}</td>
+                            <td>${history.fee}</td>
+                            <td><span class="status-${history.status === 'Đang đỗ' ? 'parking' : 
+                                history.status === 'Đã thanh toán' ? 'paid' : 'unpaid'}">
+                                ${history.status}
+                            </span></td>
+                        `;
+                        tableBody.appendChild(row);
+                    });
+                }
+                
+                function updatePagination(data) {
+                    const paginationContainer = document.querySelector('.pagination');
+                    
+                    if (data.pagination_html) {
+                        paginationContainer.innerHTML = data.pagination_html;
+                        
+                        // Gán lại sự kiện cho các nút phân trang mới
+                        document.querySelectorAll('.pagination-btn[data-page]').forEach(btn => {
+                            btn.addEventListener('click', handlePaginationClick);
+                        });
+                    } else if (isSearching) {
+                        // Tạo phân trang đơn giản nếu không có từ server
+                        paginationContainer.innerHTML = `
+                            <button class="pagination-btn" ${data.current_page == 1 ? 'disabled' : ''}
+                                data-page="${data.current_page - 1}">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <button class="pagination-btn active">${data.current_page}</button>
+                            <button class="pagination-btn" ${!data.has_next ? 'disabled' : ''}
+                                data-page="${data.current_page + 1}">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        `;
+                        
+                        // Gán lại sự kiện
+                        document.querySelectorAll('.pagination-btn[data-page]').forEach(btn => {
+                            btn.addEventListener('click', handlePaginationClick);
+                        });
+                    }
+                }
+                </script> {% endcomment %}
+        
+
+                <script>
+                    // Biến lưu trạng thái hiện tại
+                    let currentState = {
+                        query: '',
+                        status: 'all',
+                        page: 1
+                    };
+                    
+                    // Khởi tạo sự kiện khi DOM tải xong
+                    document.addEventListener('DOMContentLoaded', function() {
+                        // Sự kiện tìm kiếm
+                        document.getElementById('searchInput').addEventListener('input', function() {
+                            currentState.query = this.value.trim();
+                            currentState.page = 1; // Reset về trang 1 khi có thay đổi
+                            fetchHistoryData();
+                        });
+                    
+                        // Sự kiện lọc trạng thái
+                        document.getElementById('statusFilter').addEventListener('change', function() {
+                            currentState.status = this.value;
+                            currentState.page = 1; // Reset về trang 1 khi có thay đổi
+                            fetchHistoryData();
+                        });
+                    
+                        // Sự kiện nút lọc
+                        document.getElementById('filterButton').addEventListener('click', function() {
+                            fetchHistoryData();
+                        });
+                    
+                        // Gán sự kiện phân trang (sử dụng event delegation)
+                        document.querySelector('.pagination').addEventListener('click', function(e) {
+                            if (e.target.closest('.pagination-btn[data-page]')) {
+                                e.preventDefault();
+                                currentState.page = e.target.closest('.pagination-btn[data-page]').getAttribute('data-page');
+                                fetchHistoryData();
+                            }
+                        });
+                    });
+                    
+                    function fetchHistoryData() {
+                        const url = `/history/search/?query=${encodeURIComponent(currentState.query)}&status=${currentState.status}&page=${currentState.page}`;
+                        
+                        fetch(url)
+                            .then(response => response.json())
+                            .then(data => {
+                                updateTable(data.histories);
+                                updatePagination(data);
+                            });
+                    }
+                    
+                    function updateTable(histories) {
+                        const tableBody = document.getElementById('historyTableBody');
+                        tableBody.innerHTML = '';
+                    
+                        histories.forEach((history, index) => {
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td>${index + 1}</td>
+                                <td>${history.license_plate}</td>
+                                <td>${history.time_in}</td>
+                                <td>${history.time_out}</td>
+                                <td>${history.duration}</td>
+                                <td>${history.fee}</td>
+                                <td><span class="status-${history.status === 'Đang đỗ' ? 'parking' : 
+                                    history.status === 'Đã thanh toán' ? 'paid' : 'unpaid'}">
+                                    ${history.status}
+                                </span></td>
+                            `;
+                            tableBody.appendChild(row);
+                        });
+                    }
+                    
+                    function updatePagination(data) {
+                        const paginationContainer = document.querySelector('.pagination');
+                        
+                        if (data.pagination_html) {
+                            paginationContainer.innerHTML = data.pagination_html;
+                        } else {
+                            // Tạo phân trang đơn giản nếu không có từ server
+                            let paginationHTML = '';
+                            
+                            if (data.has_previous) {
+                                paginationHTML += `<a class="pagination-btn" href="#" data-page="${data.current_page - 1}">
+                                                    <i class="fas fa-chevron-left"></i></a>`;
+                            } else {
+                                paginationHTML += `<button class="pagination-btn" disabled>
+                                                    <i class="fas fa-chevron-left"></i></button>`;
+                            }
+                            
+                            for (let i = 1; i <= data.total_pages; i++) {
+                                if (i == data.current_page) {
+                                    paginationHTML += `<button class="pagination-btn active">${i}</button>`;
+                                } else {
+                                    paginationHTML += `<a class="pagination-btn" href="#" data-page="${i}">${i}</a>`;
+                                }
+                            }
+                            
+                            if (data.has_next) {
+                                paginationHTML += `<a class="pagination-btn" href="#" data-page="${data.current_page + 1}">
+                                                    <i class="fas fa-chevron-right"></i></a>`;
+                            } else {
+                                paginationHTML += `<button class="pagination-btn" disabled>
+                                                    <i class="fas fa-chevron-right"></i></button>`;
+                            }
+                            
+                            paginationContainer.innerHTML = paginationHTML;
+                        }
+                    }
+                    </script>
+
+                    
+{% endblock history-content %}

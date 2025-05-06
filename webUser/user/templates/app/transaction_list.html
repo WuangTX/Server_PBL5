@@ -1,0 +1,58 @@
+{% load tz %}
+{% load humanize %}
+
+<div class="transaction-list">
+    <div class="transaction-header">
+        <div class="transaction-column">Mã giao dịch</div>
+        <div class="transaction-column">Loại giao dịch</div>
+        <div class="transaction-column">Ngày giờ</div>
+        <div class="transaction-column">Số tiền</div>
+        <div class="transaction-column">Phương thức</div>
+        <div class="transaction-column">Trạng thái</div>
+    </div>
+
+    {% for transaction in page_obj %}
+        <div class="transaction-item">
+            <div class="transaction-column">TX{{ transaction.id }}</div>
+            <div class="transaction-column">{{ transaction.transaction_type }}</div>
+            <div class="transaction-column">{{ transaction.created_at|localtime|date:"d/m/Y H:i" }}</div>
+            <div class="transaction-column amount">
+                {{ transaction.amount|floatformat:0|intcomma }} đ
+            </div>
+            <div class="transaction-column">
+                {{ transaction.payment_method|default:"-" }}
+            </div>
+            <div class="transaction-column status">
+                <span class="status-badge completed">{{ transaction.status|title }}</span>
+            </div>
+        </div>
+    {% empty %}
+        <p>Không có giao dịch nào.</p>
+    {% endfor %}
+</div>
+
+<div class="pagination" style="margin-top: 20px;">
+    {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}" class="pagination-btn">
+            <i class="fas fa-chevron-left"></i>
+        </a>
+    {% else %}
+        <button class="pagination-btn" disabled><i class="fas fa-chevron-left"></i></button>
+    {% endif %}
+
+    {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+            <button class="pagination-btn active">{{ num }}</button>
+        {% else %}
+            <a href="?page={{ num }}" class="pagination-btn">{{ num }}</a>
+        {% endif %}
+    {% endfor %}
+
+    {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}" class="pagination-btn">
+            <i class="fas fa-chevron-right"></i>
+        </a>
+    {% else %}
+        <button class="pagination-btn" disabled><i class="fas fa-chevron-right"></i></button>
+    {% endif %}
+</div>

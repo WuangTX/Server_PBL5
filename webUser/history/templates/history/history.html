@@ -1,0 +1,108 @@
+{% extends "app/base.html" %}
+
+{% block history-content %}
+<section class="page-header">
+    <div class="container">
+        <h1>Lịch Sử Xe Vào/Ra</h1>
+        <p>Theo dõi lịch sử ra vào của xe và thời gian đỗ xe</p>
+    </div>
+</section>
+
+<section class="history-section">
+    <div class="container">
+        <div class="filter-controls">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Tìm kiếm theo biển số xe...">
+                <button type="button"><i class="fas fa-search"></i></button>
+            </div>
+            <div class="filter-options">
+                <select id="timeFilter">
+                    <option value="all">Tất cả thời gian</option>
+                    <option value="today">Hôm nay</option>
+                    <option value="week">Tuần này</option>
+                    <option value="month">Tháng này</option>
+                </select>
+                <select id="statusFilter">
+                    <option value="all">Tất cả trạng thái</option>
+                    <option value="in">Đang đỗ</option>
+                    <option value="out">Đã rời đi</option>
+                </select>
+                <button id="filterButton" class="btn btn-primary">Lọc</button>
+            </div>
+        </div>
+
+        <div class="history-table-container">
+            <table class="history-table">
+                <thead>
+                    <tr>
+                        <th>STT</th>
+                        <th>Biển Số Xe</th>
+                        <th>Thời Gian Vào</th>
+                        <th>Thời Gian Ra</th>
+                        <th>Thời Gian Đỗ</th>
+                        <th>Phí</th>
+                        <th>Trạng Thái</th>
+                    </tr>
+                </thead>
+                <tbody id="historyTableBody">
+                    <tr>
+                        <td>1</td>
+                        <td>51F-123.45</td>
+                        <td>15/04/2025 08:30</td>
+                        <td>15/04/2025 17:45</td>
+                        <td>9 giờ 15 phút</td>
+                        <td>92.500 VNĐ</td>
+                        <td><span class="status-paid">Đã thanh toán</span></td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>51F-678.90</td>
+                        <td>14/04/2025 09:15</td>
+                        <td>14/04/2025 12:30</td>
+                        <td>3 giờ 15 phút</td>
+                        <td>32.500 VNĐ</td>
+                        <td><span class="status-paid">Đã thanh toán</span></td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>51F-246.80</td>
+                        <td>16/04/2025 07:45</td>
+                        <td>-</td>
+                        <td>Đang đỗ</td>
+                        <td>Chưa tính</td>
+                        <td><span class="status-parking">Đang đỗ</span></td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td>51F-357.91</td>
+                        <td>13/04/2025 14:20</td>
+                        <td>13/04/2025 18:05</td>
+                        <td>3 giờ 45 phút</td>
+                        <td>37.500 VNĐ</td>
+                        <td><span class="status-paid">Đã thanh toán</span></td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td>51F-159.73</td>
+                        <td>16/04/2025 10:30</td>
+                        <td>-</td>
+                        <td>Đang đỗ</td>
+                        <td>Chưa tính</td>
+                        <td><span class="status-parking">Đang đỗ</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="pagination">
+            <button class="pagination-btn" disabled><i class="fas fa-chevron-left"></i></button>
+            <button class="pagination-btn active">1</button>
+            <button class="pagination-btn">2</button>
+            <button class="pagination-btn">3</button>
+            <button class="pagination-btn">4</button>
+            <button class="pagination-btn">5</button>
+            <button class="pagination-btn"><i class="fas fa-chevron-right"></i></button>
+        </div>
+    </div>
+</section>
+{% endblock history-content %}
